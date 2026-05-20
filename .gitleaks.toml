@@ -1,0 +1,5 @@
+[allowlist]
+description = "Ignore les fichiers d'exemple et de lock"
+paths = [
+    '(\/)?.env.example$'
+]

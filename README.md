@@ -25,6 +25,28 @@ docker compose version
 
 > **Note :** La partie **Partie I — Préparation du Serveur Linux** du TP original (mise à jour du système, installation d'Apache, PHP 8.3 et MySQL) est entièrement automatisée via Docker. Il n'est pas nécessaire d'exécuter manuellement ces étapes sur l'hôte. Le conteneur Zabbix embarque toutes les dépendances requises.
 
+## Sécurité — Détection des fuites de secrets (Gitleaks)
+
+Ce projet intègre [Gitleaks](https://github.com/gitleaks/gitleaks) pour empêcher les secrets (mots de passe, tokens, clés API) d'être poussés accidentellement sur le dépôt.
+
+### Installation du hook local (pre-commit)
+
+Le scan s'exécute automatiquement à chaque commit via le framework **pre-commit**.
+
+```bash
+# 1. Installer pre-commit (si ce n'est pas déjà fait)
+sudo apt install pre-commit
+
+# 2. Installer le hook dans le dépôt local
+pre-commit install
+```
+
+> **Note :** Le fichier `.env.example` est ignoré par Gitleaks (voir `.gitleaks.toml`).
+
+### Vérification en continu (CI/CD)
+
+Un workflow GitHub Actions (`.github/workflows/gitleaks.yml`) scanne automatiquement chaque **Pull Request** et chaque **push sur `main`** pour bloquer tout secret qui aurait contourné le hook local.
+
 ## Reconnaissance
 
 Ce travail pratique est basé sur l'énoncé publié par **Gwladysgodem** sur Medium.

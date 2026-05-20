@@ -1,0 +1,23 @@
+name: Gitleaks Scan
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  scan:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Garder 0 pour que Git connaisse l'historique récent et compare les branches
+
+      - name: Run Gitleaks Action
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # FORCE le scan uniquement sur les commits de la PR ou du push actuel
+          # Évite de faire échouer la PR à cause d'un vieux secret historique
+          GITLEAKS_ARGS: "detect --log-opts=${{ github.event_name == 'pull_request' && format('{0}..{1}', github.event.pull_request.base.sha, github.event.pull_request.head.sha) || '' }}"
