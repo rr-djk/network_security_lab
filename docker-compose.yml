@@ -69,6 +69,17 @@ services:
       zabbix_server:
         condition: service_started
 
+  # PARTIE III : Agent Zabbix dédié pour simuler la machine à surveiller
+  target_linux_agent:
+    image: zabbix/zabbix-agent:alpine-7.0-latest
+    container_name: projet_network_security_agent
+    environment:
+      - ZBX_HOSTNAME=target_linux_machine
+      - ZBX_SERVER_HOST=zabbix_server # Autorise ton serveur Zabbix à l'interroger
+    depends_on:
+      zabbix_server:
+        condition: service_started
+
 volumes:
   mariadb_data:
   zabbix_export:
