@@ -23,7 +23,26 @@ docker compose version
 
 ## Automatisation de la Partie I
 
-> **Note :** La partie **Partie I — Préparation du Serveur Linux** du TP original (mise à jour du système, installation d'Apache, PHP 8.3 et MySQL) est entièrement automatisée via Docker. Il n'est pas nécessaire d'exécuter manuellement ces étapes sur l'hôte. Le conteneur Zabbix embarque toutes les dépendances requises.
+> **Note :** La partie **Partie I — Préparation du Serveur Linux** du TP original (mise à jour du système, installation d'Apache, PHP 8.3 et MariaDB) est entièrement automatisée via Docker. Il n'est pas nécessaire d'exécuter manuellement ces étapes sur l'hôte. Le conteneur Zabbix embarque toutes les dépendances requises.
+
+## Stack technique et choix architecturaux
+
+L'infrastructure est déployée via Docker Compose avec la stack suivante :
+
+| Service | Image | Rôle |
+|---------|-------|------|
+| `web_server` | `ubuntu:24.04` + Apache + PHP 8.3 | Serveur web de test |
+| `database_server` | `mariadb:11.4` | Base de données relationnelle |
+| `zabbix_server` | `zabbix/zabbix-server-mysql:alpine-7.0-latest` | Moteur de supervision |
+| `zabbix_frontend` | `zabbix/zabbix-web-apache-mysql:alpine-7.0-latest` | Interface web Zabbix |
+
+### Pourquoi MariaDB plutôt que MySQL 8.0 ?
+
+**MySQL 8.0** causait une erreur d'import du schéma SQL (`ERROR at line 173558: Unknown command '\\'`) due à un changement de comportement du client MySQL 8.4. Il a été remplacé par **MariaDB 11.4**, qui reste pleinement compatible avec l'écosystème Zabbix et résout ce problème sans perte de performance.
+
+### Pourquoi les images Alpine pour Zabbix ?
+
+Les images officielles Zabbix existent en deux variantes : **Ubuntu** et **Alpine**. La variante Ubuntu a été remplacée par **Alpine** car le client MySQL 8.4.8 d'Ubuntu est à l'origine du bug d'import SQL. L'image Alpine embarque le client **MariaDB 11.4.10**, qui parse correctement le schéma Zabbix et s'aligne nativement avec le serveur MariaDB 11.4.
 
 ## Sécurité — Détection des fuites de secrets (Gitleaks)
 
