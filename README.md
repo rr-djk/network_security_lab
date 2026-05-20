@@ -35,6 +35,7 @@ L'infrastructure est déployée via Docker Compose avec la stack suivante :
 | `database_server` | `mariadb:11.4` | Base de données relationnelle |
 | `zabbix_server` | `zabbix/zabbix-server-mysql:alpine-7.0-latest` | Moteur de supervision |
 | `zabbix_frontend` | `zabbix/zabbix-web-apache-mysql:alpine-7.0-latest` | Interface web Zabbix |
+| `target_linux_agent` | `zabbix/zabbix-agent:alpine-7.0-latest` | Agent de surveillance Linux |
 
 ### Pourquoi MariaDB plutôt que MySQL 8.0 ?
 
@@ -43,6 +44,10 @@ L'infrastructure est déployée via Docker Compose avec la stack suivante :
 ### Pourquoi les images Alpine pour Zabbix ?
 
 Les images officielles Zabbix existent en deux variantes : **Ubuntu** et **Alpine**. La variante Ubuntu a été remplacée par **Alpine** car le client MySQL 8.4.8 d'Ubuntu est à l'origine du bug d'import SQL. L'image Alpine embarque le client **MariaDB 11.4.10**, qui parse correctement le schéma Zabbix et s'aligne nativement avec le serveur MariaDB 11.4.
+
+### Partie III — Agent Zabbix
+
+L'agent Windows Server de l'énoncé est remplacé par un agent Linux (`zabbix/zabbix-agent:alpine-7.0-latest`) car Docker sur Linux ne peut exécuter que des binaires Linux. Les métriques supervisées restent identiques.
 
 ## Sécurité — Détection des fuites de secrets (Gitleaks)
 
