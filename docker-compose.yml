@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  # ÉTAPES 2 & 3 : Le serveur Web (Apache + PHP 8.3)
+  web_server:
+    build: .
+    container_name: projet_network_security_php
+    ports:
+      - "${WEB_PORT}:80"
+    volumes:
+      - ./html:/var/www/html
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+
+  # ÉTAPE 4 : La base de données (MySQL)
+  database_server:
+    image: mysql:8.0
+    container_name: projet_network_security_mysql
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
