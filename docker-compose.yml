@@ -1,8 +1,7 @@
-version: '3.8'
 
 services:
 
-  # ÉTAPES 2 & 3 : Le serveur Web (Apache + PHP 8.3)
+  # PARTIE I : Serveur Web de test (Ubuntu + Apache + PHP 8.3)
   web_server:
     build: .
     container_name: projet_network_security_php
@@ -11,20 +10,65 @@ services:
     volumes:
       - ./html:/var/www/html
     environment:
-      - DEBIAN_FRONTEND=noninteractive
       - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    depends_on:
+      database_server:
+        condition: service_healthy
 
-  # ÉTAPE 4 : La base de données (MySQL)
+  # PARTIE I & II : Serveur de base de données (MariaDB)
   database_server:
-    image: mysql:8.0
-    container_name: projet_network_security_mysql
+    image: mariadb:11.4
+    container_name: projet_network_security_mariadb
     ports:
       - "${DB_PORT}:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-    command: --default-authentication-plugin=mysql_native_password
+      - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # PARTIE II : Moteur de supervision Zabbix Server 7.0 LTS
+  zabbix_server:
+    image: zabbix/zabbix-server-mysql:alpine-7.0-latest
+    container_name: projet_network_security_zabbix_server
+    ports:
+      - "${ZABBIX_PORT}:10051"
+    environment:
+      - DB_SERVER_HOST=database_server
+      - MYSQL_DATABASE=${ZABBIX_DB_NAME}
+      - MYSQL_USER=${ZABBIX_DB_USER}
+      - MYSQL_PASSWORD=${ZABBIX_DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    depends_on:
+      database_server:
+        condition: service_healthy # Attend que le healthcheck de MySQL soit au vert
+    volumes:
+      - zabbix_export:/var/lib/zabbix/export
+
+  # PARTIE II : Interface Web officielle de Zabbix 7.0 LTS
+  zabbix_frontend:
+    image: zabbix/zabbix-web-apache-mysql:alpine-7.0-latest
+    container_name: projet_network_security_zabbix_frontend
+    ports:
+      - "8080:8080" # Acceder à Zabbix sur http://localhost:8080
+    environment:
+      - DB_SERVER_HOST=database_server
+      - MYSQL_DATABASE=${ZABBIX_DB_NAME}
+      - MYSQL_USER=${ZABBIX_DB_USER}
+      - MYSQL_PASSWORD=${ZABBIX_DB_PASSWORD}
+      - ZBX_SERVER_HOST=zabbix_server
+      - PHP_TZ=America/Toronto
+    depends_on:
+      database_server:
+        condition: service_healthy
+      zabbix_server:
+        condition: service_started
 
 volumes:
-  mysql_data:
+  mariadb_data:
+  zabbix_export:
