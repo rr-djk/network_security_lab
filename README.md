@@ -8,11 +8,28 @@ L'objectif est de déployer un serveur Ubuntu 24.04 hébergeant Zabbix pour la s
 
 Cette architecture répond à l'exigence fondamentale de la cybersécurité moderne : **voir et protéger**. Zabbix offre la visibilité en temps réel sur l'état du réseau, tandis que FortiGate assure le contrôle des accès et la protection contre les menaces extérieures.
 
+## Prérequis
+
+Avant de déployer ce projet, assurez-vous d'avoir installé les outils suivants sur votre machine :
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+
+Vous pouvez vérifier que Docker Compose est correctement installé avec la commande :
+
+```bash
+docker compose version
+```
+
+## Automatisation de la Partie I
+
+> **Note :** La partie **Partie I — Préparation du Serveur Linux** du TP original (mise à jour du système, installation d'Apache, PHP 8.3 et MySQL) est entièrement automatisée via Docker. Il n'est pas nécessaire d'exécuter manuellement ces étapes sur l'hôte. Le conteneur Zabbix embarque toutes les dépendances requises.
+
 ## Reconnaissance
 
 Ce travail pratique est basé sur l'énoncé publié par **Gwladysgodem** sur Medium.
 
-- **Auteur·ice** : Gwladysgodem
+- **Autrice** : Gwladysgodem
 - **Article original** : [TP — Déploiement d'une architecture de supervision et de sécurisation réseau](https://medium.com/@gwladysgodem/tp-d%C3%A9ploiement-dune-architecture-de-supervision-et-de-s%C3%A9curisation-r%C3%A9seau-b96e4e9944c1?postPublishedType=initial)
 
 Je remercie Gwladysgodem pour la rédaction de ce TP pédagogique qui sert de référence pour la réalisation de ce projet.
