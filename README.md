@@ -1,6 +1,6 @@
 # TP — Architecture de supervision et sécurisation réseau (Zabbix + Docker)
 
-> Laboratoire conteneurisé de supervision réseau et de sécurisation périphérique. Zabbix 7.0 LTS, MariaDB 11.4 et simulation réseau Cisco/FortiGate, déployables en une seule commande.
+> Laboratoire conteneurisé de supervision réseau. Zabbix 7.0 LTS, MariaDB 11.4 et simulation d'équipements réseau via SNMP, déployables en une seule commande.
 
 ## Table des matières
 
@@ -19,11 +19,11 @@
 
 ## Description du projet
 
-Ce projet consiste en la mise en place d'une infrastructure complète de surveillance et de sécurisation d'un réseau d'entreprise, en combinant deux technologies complémentaires et incontournables : **Zabbix 7.0 LTS** et **FortiGate**.
+Ce projet consiste en la mise en place d'une infrastructure de surveillance réseau via **Zabbix 7.0 LTS**, déployée dans un environnement conteneurisé avec Docker Compose.
 
-L'objectif est de déployer un serveur Ubuntu 24.04 hébergeant Zabbix pour la supervision centralisée des équipements réseau (serveurs, routeurs, postes de travail), ainsi qu'un pare-feu FortiGate pour le contrôle et la segmentation du trafic. Le serveur Zabbix collecte les métriques (CPU, mémoire, disque, services, réseau) via les agents Zabbix et le protocole SNMP. Le pare-feu FortiGate applique des politiques de sécurité précises pour filtrer les flux entre les différentes zones du réseau.
+L'objectif est de déployer un serveur de supervision Zabbix qui collecte les métriques (CPU, mémoire, disque, services, réseau) via les agents Zabbix et le protocole SNMP. L'infrastructure inclut un serveur web de test, une base de données MariaDB, un agent Zabbix Linux et un simulateur de routeur Cisco via SNMP.
 
-Cette architecture répond à l'exigence fondamentale de la cybersécurité moderne : **voir et protéger**. Zabbix offre la visibilité en temps réel sur l'état du réseau, tandis que FortiGate assure le contrôle des accès et la protection contre les menaces extérieures.
+Cette architecture répond à l'exigence fondamentale de la cybersécurité moderne : **voir pour protéger**. Zabbix offre la visibilité en temps réel sur l'état du réseau et des équipements supervisés.
 
 ## Architecture
 
@@ -36,10 +36,10 @@ Cette architecture répond à l'exigence fondamentale de la cybersécurité mode
 │  └─────────────┘    └─────────────┘    └────────┬────────┘  │
 │         ▲                                        │          │
 │         │                                        ▼          │
-│  ┌─────────────┐                         ┌─────────────────┐│
-│  │target_linux │◄───────────────────────►│ zabbix_frontend ││
-│  │   agent     │      Agent Zabbix       │  (Dashboard)    ││
-│  └─────────────┘                         └─────────────────┘│
+│  ┌──────────────────────────┐                         ┌─────────────────┐│
+│  │projet_network_security   │◄───────────────────────►│ zabbix_frontend ││
+│  │        _agent            │      Agent Zabbix       │  (Dashboard)    ││
+│  └──────────────────────────┘                         └─────────────────┘│
 │         ▲                                                   │
 │         │ SNMP                                              │
 │  ┌─────────────┐                                            │
@@ -120,7 +120,7 @@ L'agent Windows Server de l'énoncé est remplacé par un agent Linux (`zabbix/z
 | Zabbix Server | `10051` | `10051` | API et collecte des métriques |
 | Zabbix Frontend | `8080` | `8080` | Interface web de supervision |
 
-> **Note :** L'agent Zabbix et le simulateur SNMP n'exposent pas de ports sur l'hôte. Ils communiquent via le réseau interne Docker.
+> **Note :** L'agent Zabbix communique via le réseau interne Docker et n'expose pas de port sur l'hôte. Le simulateur SNMP expose le port UDP 161 pour permettre à Zabbix de l'interroger.
 
 ## Sécurité — Détection des fuites de secrets (Gitleaks)
 
@@ -164,8 +164,7 @@ Ce laboratoire démontre les compétences suivantes, directement applicables en 
 - **Conteneurisation** : Architecture multi-services avec Docker Compose, orchestration de dépendances (healthchecks), gestion de réseaux internes.
 - **Sécurisation des secrets** : Externalisation des credentials dans `.env`, scan automatique des fuites avec Gitleaks, intégration CI/CD.
 - **Résolution de conflits d'écosystème** : Diagnostic et contournement d'incompatibilités (MySQL 8.4 vs schéma Zabbix, Ubuntu vs Alpine).
-- **Simulation réseau** : Émulation d'équipements réseau (routeur Cisco via SNMP, pare-feu via iptables) dans un environnement 100 % logiciel.
-- **Filtrage et segmentation** : Application de règles de pare-feu avec gestion de la priorité (ordre des règles DENY/ALLOW).
+- **Simulation réseau** : Émulation d'un équipement réseau (routeur Cisco via SNMP) dans un environnement 100 % logiciel.
 
 ## Dépannage
 
