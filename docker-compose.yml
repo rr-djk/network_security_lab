@@ -80,6 +80,19 @@ services:
       zabbix_server:
         condition: service_started
 
+  # PARTIE IV : Simulation du Routeur Cisco via un démon SNMP
+  cisco_router_sim:
+    image: alpine:latest
+    container_name: cisco_router_sim
+    ports:
+      - "161:161/udp"
+    command: >
+      sh -c "apk add --no-cache net-snmp &&
+      echo 'rocommunity SNMP' > /etc/snmp/snmpd.conf &&
+      echo 'syslocation Salle-Serveurs' >> /etc/snmp/snmpd.conf &&
+      echo 'syscontact admin@jarvis.ca' >> /etc/snmp/snmpd.conf &&
+      snmpd -f -Lo -c /etc/snmp/snmpd.conf"
+
 volumes:
   mariadb_data:
   zabbix_export:
